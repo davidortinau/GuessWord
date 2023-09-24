@@ -4,45 +4,33 @@ namespace GuessWord
 {
 	public class MainPage : ContentPage
 	{
-		private string word;
+		private string puzzle;
 		private List<Label> letterLabels;
 
 		private List<Label> missesLabels;
 		private int incorrectGuesses;
-		private const int MaxIncorrectGuesses = 6;
+        private HorizontalStackLayout puzzleLayout;
+        private List<char> guessedLetters;
+        private const int MaxIncorrectGuesses = 6;
 
 		public MainPage()
 		{
-			GetRandomWord();
 			Build();	
+			Replay();
 			ListenForGuess();
 		}
 
 		void Build()
 		{
 			Grid grid = new Grid();
-			HorizontalStackLayout stackLayout = new HorizontalStackLayout(){ Spacing = 18, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
-			letterLabels = new List<Label>();
-			for (int i = 0; i < word.Length; i++)
-			{
-				Label letterLabel = new Label
-				{
-					Text = "_",
-					FontSize = 72,
-					HorizontalOptions = LayoutOptions.Center,
-					VerticalOptions = LayoutOptions.Center
-				};
-				letterLabels.Add(letterLabel);
-				stackLayout.Children.Add(letterLabel);
-			}
+			puzzleLayout = new HorizontalStackLayout(){ Spacing = 18, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+			grid.Add(puzzleLayout);
 
-			grid.Add(stackLayout);
 			HorizontalStackLayout misses = new(){
 				Spacing = 18,
 				HorizontalOptions = LayoutOptions.Center,
 				VerticalOptions = LayoutOptions.End
-			};
-			
+			};			
 			missesLabels = new List<Label>();
 
 			for (int i = 0; i < MaxIncorrectGuesses; i++)
@@ -60,19 +48,52 @@ namespace GuessWord
 				misses.Children.Add(letterLabel);
 			}
 			grid.Add(misses);
+
+			Button btn = new(){
+				Text = "Reset",
+				HorizontalOptions = LayoutOptions.End,
+				VerticalOptions = LayoutOptions.End
+			};
+
+			btn.Clicked += (s, e) => Replay();
+			grid.Add(btn);
+
 			Content = grid;
 		}
 
-		void GetRandomWord()
+		void GetRandomPuzzle()
 		{
-			word = WordList.GetRandomWord().ToUpper();
+			puzzle = PuzzleList.GetRandomPuzzle().ToUpper();
 		}
 
 		void DrawWord()
 		{
-			for (int i = 0; i < word.Length; i++)
+			guessedLetters = new List<char>();
+			letterLabels = new List<Label>();
+			for (int i = 0; i < puzzle.Length; i++)
 			{
-				letterLabels[i].Text = "_";
+				if(puzzle[i] != ' ')
+				{				
+					Label letterLabel = new Label
+					{
+						Text = "_",
+						FontSize = 72,
+						HorizontalOptions = LayoutOptions.Center,
+						VerticalOptions = LayoutOptions.Center
+					};
+					letterLabels.Add(letterLabel);
+					puzzleLayout.Children.Add(letterLabel);
+				}else{
+					Label spaceLabel = new Label
+					{
+						Text = " ",
+						FontSize = 72,
+						HorizontalOptions = LayoutOptions.Center,
+						VerticalOptions = LayoutOptions.Center
+					};
+					letterLabels.Add(spaceLabel);
+					puzzleLayout.Children.Add(spaceLabel);
+				}
 			}
 		}
 
@@ -87,34 +108,39 @@ namespace GuessWord
 				char letter = Char.ToUpper(e.KeyChar);
 				if ((letter >= 'A' && letter <= 'Z'))
 				{
-					bool found = false;
-					for (int i = 0; i < word.Length; i++)
+					if (!guessedLetters.Contains(letter))
 					{
-						if (Char.ToUpper(word[i]).Equals(letter))
-						{
-							letterLabels[i].Text = letter.ToString().ToUpper();
-							found = true;
+						guessedLetters.Add(letter);
 
-							string guess = string.Join("", letterLabels.Select(label => label.Text));
-							if (guess == word)
+						bool found = false;
+						for (int i = 0; i < puzzle.Length; i++)
+						{
+							if (Char.ToUpper(puzzle[i]).Equals(letter))
 							{
-								var result = await DisplayAlert("Congratulations", "You guessed the word!", "Quit", "Play Again");
-								HandleEndOfGame(result);
-								return;
+								letterLabels[i].Text = letter.ToString().ToUpper();
+								found = true;
+
+								string guess = string.Join("", letterLabels.Select(label => label.Text));
+								if (guess == puzzle)
+								{
+									var result = await DisplayAlert("Congratulations", "You guessed the word!", "Quit", "Play Again");
+									HandleEndOfGame(result);
+									return;
+								}
 							}
 						}
-					}
 
-					if (!found)
-					{
-						incorrectGuesses++;
-						missesLabels[incorrectGuesses - 1].Text = letter.ToString().ToUpper();
-						missesLabels[incorrectGuesses - 1].IsVisible = true;
-						if (incorrectGuesses >= MaxIncorrectGuesses)
+						if (!found)
 						{
-							DrawWord();
-							var result = await DisplayAlert("Game Over", $"The word was {word}.", "Quit", "Play Again");
-							HandleEndOfGame(result);
+							incorrectGuesses++;
+							missesLabels[incorrectGuesses - 1].Text = letter.ToString().ToUpper();
+							missesLabels[incorrectGuesses - 1].IsVisible = true;
+							if (incorrectGuesses >= MaxIncorrectGuesses)
+							{
+								var result = await DisplayAlert("Game Over", $"The word was {puzzle}.", "Quit", "Play Again");
+								HandleEndOfGame(result);
+							}
+						
 						}
 					}
 				}
@@ -135,7 +161,10 @@ namespace GuessWord
 
 		void Replay()
 		{
-			GetRandomWord();
+			guessedLetters = new List<char>();
+			puzzleLayout.Children.Clear();
+			letterLabels = new List<Label>();
+			GetRandomPuzzle();
 			DrawWord();
 			missesLabels.ForEach(label => label.IsVisible = false);
 			incorrectGuesses = 0;
@@ -145,16 +174,16 @@ namespace GuessWord
 		{
 			Label letterLabel = (Label)sender;
 			int index = letterLabels.IndexOf(letterLabel);
-			if (word.Contains(letterLabel.Text))
+			if (puzzle.Contains(letterLabel.Text))
 			{
-				letterLabel.Text = word[index].ToString();
+				letterLabel.Text = puzzle[index].ToString();
 			}
 			else
 			{
 				incorrectGuesses++;
 				if (incorrectGuesses >= MaxIncorrectGuesses)
 				{
-					DisplayAlert("Game Over", $"The word was {word}.", "OK");
+					DisplayAlert("Game Over", $"The word was {puzzle}.", "OK");
 				}
 			}
 		}

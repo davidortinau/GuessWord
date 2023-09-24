@@ -1,11 +1,11 @@
-public class WordList
+public class PuzzleList
 {
-    private static readonly string[] Words = { "apple", "banana", "cherry", "date", "elderberry" };
+    private static readonly string[] Puzzles = { "apple", "banana", "cherry", "date", "elderberry", "frozen yogurt", "green tea", "hot chocolate", "ice cream", "lemonade" };
 
-    public static string GetRandomWord()
+    public static string GetRandomPuzzle()
     {
         Random random = new Random();
-        int index = random.Next(Words.Length);
-        return Words[index];
+        int index = random.Next(Puzzles.Length);
+        return Puzzles[index];
     }
 }
