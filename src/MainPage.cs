@@ -18,11 +18,33 @@ namespace GuessWord
 			Build();	
 			Replay();
 			ListenForGuess();
+			InitMenu();
+		}
+
+		void InitMenu()
+		{
+			MenuBarItem appMenu = new(){
+				Text = "App"
+			};
+
+			appMenu.Add(new MenuFlyoutItem{
+				Text = "Reset",
+				Command = new Command(()=>{ Replay(); })
+			});
+
+			appMenu.Add(new MenuFlyoutItem{
+				Text = "Quit", 
+				Command = new Command(()=>{ Environment.Exit(0); })
+			});
+			
+			this.MenuBarItems.Add(appMenu);
 		}
 
 		void Build()
 		{
-			Grid grid = new Grid();
+			Grid grid = new Grid(){
+				Margin = new Thickness(20)
+			};
 			puzzleLayout = new HorizontalStackLayout(){ Spacing = 18, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
 			grid.Add(puzzleLayout);
 
@@ -37,12 +59,17 @@ namespace GuessWord
 			{
 				Label letterLabel = new Label
 				{
-					Text = "X",
+					Text = " ",
 					FontSize = 36,
-					TextColor = Colors.Red,
+					WidthRequest = 60,
+					HeightRequest = 80,
+					VerticalTextAlignment = TextAlignment.Center,
+					HorizontalTextAlignment = TextAlignment.Center,
+					Padding = new Thickness(6, 4, 6, 4),
+					BackgroundColor = Color.FromArgb("#F1F1F1"),
+					TextColor = Colors.White,
 					HorizontalOptions = LayoutOptions.Center,
-					VerticalOptions = LayoutOptions.Center,
-					IsVisible = false
+					VerticalOptions = LayoutOptions.Center
 				};
 				missesLabels.Add(letterLabel);
 				misses.Children.Add(letterLabel);
@@ -51,6 +78,8 @@ namespace GuessWord
 
 			Button btn = new(){
 				Text = "Reset",
+				BackgroundColor = Color.FromArgb("#1d1d1d"),
+				TextColor = Colors.White,
 				HorizontalOptions = LayoutOptions.End,
 				VerticalOptions = LayoutOptions.End
 			};
@@ -134,7 +163,7 @@ namespace GuessWord
 						{
 							incorrectGuesses++;
 							missesLabels[incorrectGuesses - 1].Text = letter.ToString().ToUpper();
-							missesLabels[incorrectGuesses - 1].IsVisible = true;
+							missesLabels[incorrectGuesses - 1].BackgroundColor = Color.FromArgb("#CC0000");
 							if (incorrectGuesses >= MaxIncorrectGuesses)
 							{
 								var result = await DisplayAlert("Game Over", $"The word was {puzzle}.", "Quit", "Play Again");
@@ -166,7 +195,10 @@ namespace GuessWord
 			letterLabels = new List<Label>();
 			GetRandomPuzzle();
 			DrawWord();
-			missesLabels.ForEach(label => label.IsVisible = false);
+			missesLabels.ForEach(label => {
+				label.BackgroundColor = Color.FromArgb("#F1F1F1");
+				label.Text = " ";
+			});
 			incorrectGuesses = 0;
 		}
 

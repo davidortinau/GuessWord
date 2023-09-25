@@ -10,6 +10,8 @@ public class App : Application
 		Resources.MergedDictionaries.Add(AppColors.GetResourceDictionary());
 		Resources.MergedDictionaries.Add(AppStyles.GetResourceDictionary());
 
+		App.Current.UserAppTheme = AppTheme.Light;
+
 		MainPage = new MainPage();
 	}
 }

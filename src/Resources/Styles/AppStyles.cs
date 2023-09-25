@@ -85,6 +85,32 @@ namespace GuessWord.Resources.Styles
             tabbedPageStyle.Setters.Add(new Setter { Property = TabbedPage.UnselectedTabColorProperty, Value = new AppThemeBindingExtension { Light = (Color)resourceDictionary["Gray200"], Dark = (Color)resourceDictionary["Gray950"] } });
             tabbedPageStyle.Setters.Add(new Setter { Property = TabbedPage.SelectedTabColorProperty, Value = new AppThemeBindingExtension { Light = (Color)resourceDictionary["Gray950"], Dark = (Color)resourceDictionary["Gray200"] } });
 
+            
+            var buttonStyle = new Style(typeof(Button));
+            buttonStyle.Setters.Add(new Setter { Property = Button.TextColorProperty, Value = (Color)resourceDictionary["White"] });
+            buttonStyle.Setters.Add(new Setter { Property = Button.BackgroundColorProperty, Value = (Color)resourceDictionary["Primary"] });
+            buttonStyle.Setters.Add(new Setter { Property = Button.FontFamilyProperty, Value = "OpenSansRegular" });
+            buttonStyle.Setters.Add(new Setter { Property = Button.FontSizeProperty, Value = 14 });
+            buttonStyle.Setters.Add(new Setter { Property = Button.CornerRadiusProperty, Value = 8 });
+            buttonStyle.Setters.Add(new Setter { Property = Button.PaddingProperty, Value = new Thickness(14, 10) });
+            buttonStyle.Setters.Add(new Setter { Property = Button.MinimumHeightRequestProperty, Value = 44 });
+            buttonStyle.Setters.Add(new Setter { Property = Button.MinimumWidthRequestProperty, Value = 44 });
+
+            var visualStateGroupList = new VisualStateGroupList();
+            var buttonCommonStates = new VisualStateGroup { Name = "CommonStates" };
+            var buttonNormalState = new VisualState { Name = "Normal" };
+            var buttonDisabledState = new VisualState { Name = "Disabled" };
+
+            buttonDisabledState.Setters.Add(new Setter { Property = Button.TextColorProperty, Value = new AppThemeBindingExtension { Light = (Color)resourceDictionary["Gray950"], Dark = (Color)resourceDictionary["Gray200"] } });
+            buttonDisabledState.Setters.Add(new Setter { Property = Button.BackgroundColorProperty, Value = new AppThemeBindingExtension { Light = (Color)resourceDictionary["Gray200"], Dark = (Color)resourceDictionary["Gray600"] } });
+            
+            buttonCommonStates.States.Add(normalState);
+            buttonCommonStates.States.Add(disabledState);
+            visualStateGroupList.Add(commonStates);
+
+            buttonStyle.Setters.Add(new Setter { Property = VisualStateManager.VisualStateGroupsProperty, Value = visualStateGroupList });
+            resourceDictionary.Add(buttonStyle);
+
             resourceDictionary.Add(switchStyle);
             resourceDictionary.Add(timePickerStyle);
             resourceDictionary.Add(pageStyle);
