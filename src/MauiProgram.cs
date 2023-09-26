@@ -1,6 +1,6 @@
-﻿using Maui.FixesAndWorkarounds;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Handlers;
+using Plugin.Maui.KeyListener;
 
 namespace GuessWord;
 
@@ -11,6 +11,7 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
+			.UseKeyListener()
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -20,18 +21,7 @@ public static class MauiProgram
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
-		builder.ConfigureMauiHandlers(handlers =>
-		{
-			#if IOS || MACCATALYST
-				PageHandler.PlatformViewFactory = (handler) =>
-				{
-					var vc = new KeyboardPageViewController(handler.VirtualView, handler.MauiContext);
-					handler.ViewController = vc;
-					return (Microsoft.Maui.Platform.ContentView)vc.View.Subviews[0];
-				};
-#endif
-		});
-
+		
 		return builder.Build();
 	}
 }
