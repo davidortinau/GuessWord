@@ -135,9 +135,11 @@ namespace GuessWord
 			// kb.Triggers.Add(new KeyboardBehaviorTrigger{ Keys = });
 
 			kb.KeyUp += async (s, e)=>{
-				Console.WriteLine($"KeyUp: {e.Keys.ToString()}");
+				var key = e.Keys.ToString();
+				Console.WriteLine($"KeyUp: {key}");
+				
 				char letter = Char.ToUpper(e.KeyChar);
-				if ((letter >= 'A' && letter <= 'Z'))
+				if ((letter >= 'A' && letter <= 'Z') && key != "None")
 				{
 					if (!guessedLetters.Contains(letter))
 					{
